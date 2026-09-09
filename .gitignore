@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Environment files (never commit real credentials)
+.env
+.env.local
+*.env.local
+
+# Build output
+dist/
+dist-ssr/
+frontend/release/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Temporary Office lock files (e.g. ~$Xenovaa-Chat-Task-Tracker.xlsx)
+~$*
+
+# Markdown files
+*.md

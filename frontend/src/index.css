@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+/*
+  Xenovaa Chat design system — from xenovaa-chat-color-palette-prompt.md.
+  Raw palette tokens are fixed across light/dark (per spec: semantic + accent
+  colors keep the same hex in both modes). Semantic tokens (canvas, surface,
+  ink, line, field, bubble-received) are deliberately remapped for dark mode
+  below, not just inverted.
+*/
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Brand anchor */
+  --color-anchor-900: #0b1220;
+  --color-anchor-800: #131c2e;
+  --color-anchor-700: #1c2a45;
+
+  /* Accent */
+  --color-accent-600: #4f6bff;
+  --color-accent-700: #3b52d9;
+  --color-accent-100: #e8ecff;
+
+  /* Neutrals */
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #f7f8fa;
+  --color-neutral-100: #eef1f5;
+  --color-neutral-200: #dce1e8;
+  --color-neutral-400: #8e97a8;
+  --color-neutral-600: #4a5568;
+  --color-neutral-900: #1a2233;
+
+  /* Semantic (status only) */
+  --color-success-600: #1ea672;
+  --color-success-100: #e4f6ee;
+  --color-warning-600: #c98a1a;
+  --color-warning-100: #fbf0dd;
+  --color-danger-600: #d3452f;
+  --color-danger-100: #fbe7e3;
+  --color-info-600: #2e90d9;
+
+  /* Semantic surface tokens (remapped per color-scheme, see below) */
+  --color-canvas: #f7f8fa;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f7f8fa;
+  --color-line: #dce1e8;
+  --color-field: #eef1f5;
+  --color-ink: #1a2233;
+  --color-ink-soft: #4a5568;
+  --color-ink-muted: #8e97a8;
+  --color-bubble-received: #eef1f5;
+  --color-accent-tint: #e8ecff;
+  --color-success-tint: #e4f6ee;
+  --color-warning-tint: #fbf0dd;
+  --color-danger-tint: #fbe7e3;
+
+  --shadow-card: 0 1px 3px rgba(16, 24, 40, 0.06);
+  --shadow-panel: 0 4px 12px rgba(16, 24, 40, 0.1);
+}
+
+/* Dark mode: deliberate remap, not an inversion. Accent/semantic hexes are
+   unchanged (per spec); only the surface/text/tint tokens shift.
+
+   Three states, matching the in-app Light/Dark/System toggle (ThemeContext):
+   - No [data-theme] attribute + system prefers dark  -> dark (media query)
+   - [data-theme="light"]                              -> light, even if system is dark
+   - [data-theme="dark"]                                -> dark, even if system is light */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-canvas: #0b1220;
+    --color-surface: #131c2e;
+    --color-surface-hover: #1c2a45;
+    --color-line: #26324a;
+    --color-field: #1c2a45;
+    --color-ink: #f1f4f9;
+    --color-ink-soft: #9aa5b8;
+    --color-ink-muted: #9aa5b8;
+    --color-bubble-received: #131c2e;
+    --color-accent-tint: rgba(79, 107, 255, 0.15);
+    --color-success-tint: rgba(30, 166, 114, 0.12);
+    --color-warning-tint: rgba(201, 138, 26, 0.12);
+    --color-danger-tint: rgba(211, 69, 47, 0.12);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.24);
+    --shadow-panel: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+}
+
+:root[data-theme='dark'] {
+  --color-canvas: #0b1220;
+  --color-surface: #131c2e;
+  --color-surface-hover: #1c2a45;
+  --color-line: #26324a;
+  --color-field: #1c2a45;
+  --color-ink: #f1f4f9;
+  --color-ink-soft: #9aa5b8;
+  --color-ink-muted: #9aa5b8;
+  --color-bubble-received: #131c2e;
+  --color-accent-tint: rgba(79, 107, 255, 0.15);
+  --color-success-tint: rgba(30, 166, 114, 0.12);
+  --color-warning-tint: rgba(201, 138, 26, 0.12);
+  --color-danger-tint: rgba(211, 69, 47, 0.12);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.24);
+  --shadow-panel: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+@keyframes typing-pulse {
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
