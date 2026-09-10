@@ -1,11 +1,13 @@
+import { useState } from 'react';
 import { NavLink, Link, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { NotificationBell } from './NotificationBell';
 import { ThemeToggle } from './ThemeToggle';
 import { AnnouncementBanner } from './AnnouncementBanner';
 import { Avatar } from './Avatar';
-import { HomeIcon, UsersIcon, InboxIcon, ChatIcon, ShieldIcon, LogoutIcon } from './Icons';
+import { HomeIcon, UsersIcon, InboxIcon, ChatIcon, ShieldIcon, LogoutIcon, GearIcon } from './Icons';
 import { StatusSelector } from './StatusSelector';
+import { ServerSettingsModal } from './ServerSettingsModal';
 
 const NAV_LINKS = [
   { to: '/', label: 'Home', end: true, Icon: HomeIcon },
@@ -16,6 +18,7 @@ const NAV_LINKS = [
 
 export function AppLayout() {
   const { user, logout } = useAuth();
+  const [showServerSettings, setShowServerSettings] = useState(false);
   const navLinks =
     user?.role === 'admin' ? [...NAV_LINKS, { to: '/admin', label: 'Admin', Icon: ShieldIcon }] : NAV_LINKS;
 
@@ -77,6 +80,13 @@ export function AppLayout() {
 
         <div className="flex min-h-0 flex-1 flex-col">
           <header className="flex flex-shrink-0 items-center justify-end gap-1 border-b border-line bg-surface px-6 py-3">
+            <button
+              onClick={() => setShowServerSettings(true)}
+              title="Server settings"
+              className="rounded-lg p-2 text-[var(--color-ink-muted)] transition hover:bg-field hover:text-[var(--color-ink-soft)]"
+            >
+              <GearIcon className="h-[18px] w-[18px]" />
+            </button>
             <ThemeToggle />
             <NotificationBell />
           </header>
@@ -86,6 +96,8 @@ export function AppLayout() {
           </main>
         </div>
       </div>
+
+      {showServerSettings && <ServerSettingsModal onClose={() => setShowServerSettings(false)} />}
     </div>
   );
 }

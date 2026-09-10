@@ -5,6 +5,8 @@ import { listDepartmentsRequest } from '../api/departments';
 import { TextInput, Select } from '../components/FormField';
 import { Button } from '../components/Button';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { ServerSettingsModal } from '../components/ServerSettingsModal';
+import { GearIcon } from '../components/Icons';
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -13,6 +15,7 @@ export default function RegisterPage() {
   const [form, setForm] = useState({ name: '', email: '', password: '', departmentId: '' });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [showServerSettings, setShowServerSettings] = useState(false);
 
   useEffect(() => {
     listDepartmentsRequest().then(setDepartments).catch(() => setDepartments([]));
@@ -38,9 +41,17 @@ export default function RegisterPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-canvas px-4 py-10">
-      <div className="absolute right-4 top-4">
+      <div className="absolute right-4 top-4 flex items-center gap-1">
+        <button
+          onClick={() => setShowServerSettings(true)}
+          title="Server settings"
+          className="rounded-lg p-2 text-[var(--color-ink-muted)] transition hover:bg-field hover:text-[var(--color-ink-soft)]"
+        >
+          <GearIcon className="h-[18px] w-[18px]" />
+        </button>
         <ThemeToggle />
       </div>
+      {showServerSettings && <ServerSettingsModal onClose={() => setShowServerSettings(false)} />}
       <div className="w-full max-w-sm">
         <div className="mb-6 flex items-center justify-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-600 text-base font-bold text-white">

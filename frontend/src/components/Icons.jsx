@@ -216,6 +216,15 @@ export function MonitorIcon(props) {
   );
 }
 
+export function GearIcon(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 2.5 19.5 7v10L12 21.5 4.5 17V7z" />
+      <circle cx="12" cy="12" r="3.2" />
+    </svg>
+  );
+}
+
 export function CameraIcon(props) {
   return (
     <svg {...base} {...props}>

@@ -2,8 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 import { getSavedStatus } from '../lib/presenceStatus';
-
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5001';
+import { getSocketUrl } from '../lib/serverConfig';
 
 const SocketContext = createContext(null);
 
@@ -24,7 +23,7 @@ export function SocketProvider({ children }) {
     // on every reconnect attempt, not just captured once at socket creation —
     // otherwise a status change made just before a brief network drop would
     // be lost and overwritten back to a stale value on reconnect.
-    const instance = io(SOCKET_URL, {
+    const instance = io(getSocketUrl(), {
       auth: (cb) => cb({ token: localStorage.getItem('xenovaa_token'), status: getSavedStatus() }),
       autoConnect: true,
     });
