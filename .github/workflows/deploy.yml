@@ -1,0 +1,31 @@
+name: Deploy Backend
+
+# Auto-deploys the backend to the Contabo server whenever backend code is
+# pushed to main. Does NOT touch the frontend/desktop app — that's still
+# built and shared manually (see DEPLOY_CONTABO.md / MANUAL_GUIDE.md).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    name: Deploy to Contabo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/Xenovaa-Chat-App
+            git pull origin main
+            cd backend
+            npm ci --omit=dev
+            pm2 restart xenovaa-backend
