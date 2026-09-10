@@ -1,7 +1,7 @@
 {
   "name": "frontend",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Xenovaa Chat — private internal chat app for Xenovaa employees.",
   "author": "Xenovaa",
   "type": "module",
