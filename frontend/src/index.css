@@ -38,23 +38,26 @@
   --color-danger-100: #fbe7e3;
   --color-info-600: #2e90d9;
 
-  /* Semantic surface tokens (remapped per color-scheme, see below) */
-  --color-canvas: #f7f8fa;
+  /* Semantic surface tokens (remapped per color-scheme, see below).
+     Light-mode values tuned for clearer definition (darker borders, more
+     legible muted text, a visible hover step) — dark-mode overrides below
+     are untouched. */
+  --color-canvas: #f4f6f9;
   --color-surface: #ffffff;
-  --color-surface-hover: #f7f8fa;
-  --color-line: #dce1e8;
-  --color-field: #eef1f5;
+  --color-surface-hover: #eef1f6;
+  --color-line: #cdd5e0;
+  --color-field: #e9edf3;
   --color-ink: #1a2233;
-  --color-ink-soft: #4a5568;
-  --color-ink-muted: #8e97a8;
-  --color-bubble-received: #eef1f5;
+  --color-ink-soft: #40495c;
+  --color-ink-muted: #6b7484;
+  --color-bubble-received: #eef1f6;
   --color-accent-tint: #e8ecff;
   --color-success-tint: #e4f6ee;
   --color-warning-tint: #fbf0dd;
   --color-danger-tint: #fbe7e3;
 
-  --shadow-card: 0 1px 3px rgba(16, 24, 40, 0.06);
-  --shadow-panel: 0 4px 12px rgba(16, 24, 40, 0.1);
+  --shadow-card: 0 1px 3px rgba(16, 24, 40, 0.08);
+  --shadow-panel: 0 4px 14px rgba(16, 24, 40, 0.14);
 }
 
 /* Dark mode: deliberate remap, not an inversion. Accent/semantic hexes are

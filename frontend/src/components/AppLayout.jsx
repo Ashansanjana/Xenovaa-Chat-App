@@ -5,15 +5,14 @@ import { NotificationBell } from './NotificationBell';
 import { ThemeToggle } from './ThemeToggle';
 import { AnnouncementBanner } from './AnnouncementBanner';
 import { Avatar } from './Avatar';
-import { HomeIcon, UsersIcon, InboxIcon, ChatIcon, ShieldIcon, LogoutIcon, GearIcon } from './Icons';
+import { UsersIcon, InboxIcon, ChatIcon, ShieldIcon, LogoutIcon, GearIcon } from './Icons';
 import { StatusSelector } from './StatusSelector';
 import { ServerSettingsModal } from './ServerSettingsModal';
 
 const NAV_LINKS = [
-  { to: '/', label: 'Home', end: true, Icon: HomeIcon },
+  { to: '/chats', label: 'Chats', Icon: ChatIcon },
   { to: '/directory', label: 'Directory', Icon: UsersIcon },
   { to: '/requests', label: 'Requests', Icon: InboxIcon },
-  { to: '/chats', label: 'Chats', Icon: ChatIcon },
 ];
 
 export function AppLayout() {

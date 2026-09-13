@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
@@ -7,7 +7,6 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { AppLayout } from './components/AppLayout';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import HomePage from './pages/HomePage';
 import DirectoryPage from './pages/DirectoryPage';
 import RequestsPage from './pages/RequestsPage';
 import UserProfilePage from './pages/UserProfilePage';
@@ -32,7 +31,7 @@ export default function App() {
                   </ProtectedRoute>
                 }
               >
-                <Route index element={<HomePage />} />
+                <Route index element={<Navigate to="/chats" replace />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="directory" element={<DirectoryPage />} />
                 <Route path="requests" element={<RequestsPage />} />

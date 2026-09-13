@@ -6,6 +6,8 @@ import {
   listPinnedMessagesRequest,
   uploadAttachmentRequest,
 } from '../api/conversations';
+import { listUsersRequest } from '../api/users';
+import { sendChatRequestApi } from '../api/chatRequests';
 import { useSocket } from '../context/SocketContext';
 import { useAuth } from '../context/AuthContext';
 import { Avatar } from '../components/Avatar';
@@ -14,8 +16,20 @@ import { MessageBubble } from '../components/MessageBubble';
 import { NewGroupModal } from '../components/NewGroupModal';
 import { GroupInfoPanel } from '../components/GroupInfoPanel';
 import { TypingDots } from '../components/TypingDots';
+import { OnlineColleagues } from '../components/OnlineColleagues';
+import { Spinner } from '../components/Spinner';
 import { PaperclipIcon, SendIcon, InfoIcon, CloseIcon, PlusIcon } from '../components/Icons';
 import { createReportRequest } from '../api/reports';
+
+function formatMessageTime(iso) {
+  if (!iso) return '';
+  const date = new Date(iso);
+  const now = new Date();
+  const sameDay = date.toDateString() === now.toDateString();
+  if (sameDay) return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const sameYear = date.getFullYear() === now.getFullYear();
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: sameYear ? undefined : 'numeric' });
+}
 
 function toStatuses(messageStatusRows) {
   return (messageStatusRows || []).map((s) => ({ userId: s.user_id, status: s.status }));
@@ -48,6 +62,9 @@ export default function ChatsPage() {
   const [error, setError] = useState('');
   const [showNewGroupModal, setShowNewGroupModal] = useState(false);
   const [showGroupInfo, setShowGroupInfo] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
+  const [startingChatWith, setStartingChatWith] = useState(null);
+  const [infoMessage, setInfoMessage] = useState('');
 
   const typingTimeoutRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -58,8 +75,14 @@ export default function ChatsPage() {
     [conversations, conversationId]
   );
 
+  const onlineUsers = useMemo(
+    () => allUsers.filter((u) => u.status === 'online' || u.status === 'break'),
+    [allUsers]
+  );
+
   useEffect(() => {
     loadConversations();
+    listUsersRequest().then(setAllUsers).catch(() => setAllUsers([]));
   }, []);
 
   useEffect(() => {
@@ -116,6 +139,7 @@ export default function ChatsPage() {
 
     function onUserStatusChanged({ userId, status }) {
       applyMemberStatus(userId, status);
+      setAllUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, status } : u)));
     }
 
     function onMessageUpdated({ conversationId: cid, messageId, isPinned, isDeleted, deletedForEveryone, hiddenForMe }) {
@@ -294,6 +318,30 @@ export default function ChatsPage() {
     });
   }
 
+  async function handleStartChat(otherUser) {
+    const existing = conversations.find((c) => !c.isGroup && c.otherMember?.id === otherUser.id);
+    if (existing) {
+      navigate(`/chats/${existing.id}`);
+      return;
+    }
+
+    setInfoMessage('');
+    setStartingChatWith(otherUser.id);
+    try {
+      const { conversation } = await sendChatRequestApi(otherUser.id);
+      if (conversation) {
+        setConversations((prev) => (prev.some((c) => c.id === conversation.id) ? prev : [conversation, ...prev]));
+        navigate(`/chats/${conversation.id}`);
+      } else {
+        setInfoMessage(`Chat request sent to ${otherUser.name}.`);
+      }
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to start chat.');
+    } finally {
+      setStartingChatWith(null);
+    }
+  }
+
   async function handleReport(message, reason) {
     try {
       await createReportRequest({ messageId: message.id, reason });
@@ -316,7 +364,9 @@ export default function ChatsPage() {
           </button>
         </div>
         {loadingConversations ? (
-          <p className="px-4 py-6 text-sm text-[var(--color-ink-muted)]">Loading…</p>
+          <div className="flex items-center gap-2 px-4 py-6 text-sm text-[var(--color-ink-muted)]">
+            <Spinner /> Loading conversations…
+          </div>
         ) : conversations.length === 0 ? (
           <p className="px-4 py-6 text-sm text-[var(--color-ink-muted)]">
             No conversations yet. Connect with someone from the{' '}
@@ -343,17 +393,24 @@ export default function ChatsPage() {
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <p className="truncate text-sm font-medium text-ink">{c.name}</p>
+                  {c.lastMessage?.created_at && (
+                    <span className="flex-shrink-0 text-[11px] text-[var(--color-ink-muted)]">
+                      {formatMessageTime(c.lastMessage.created_at)}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="truncate text-xs text-[var(--color-ink-muted)]">
+                    {c.lastMessage?.message || 'No messages yet'}
+                  </p>
                   {c.unreadCount > 0 && (
-                    <span className="ml-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-600 px-1.5 text-xs font-medium text-white">
+                    <span className="flex h-5 min-w-5 flex-shrink-0 items-center justify-center rounded-full bg-accent-600 px-1.5 text-xs font-medium text-white">
                       {c.unreadCount}
                     </span>
                   )}
                 </div>
-                <p className="truncate text-xs text-[var(--color-ink-muted)]">
-                  {c.lastMessage?.message || 'No messages yet'}
-                </p>
               </div>
             </button>
           ))
@@ -362,8 +419,25 @@ export default function ChatsPage() {
 
       <section className="flex flex-1 flex-col bg-canvas">
         {!conversationId || !activeConversation ? (
-          <div className="flex flex-1 items-center justify-center text-sm text-[var(--color-ink-muted)]">
-            Select a conversation to start chatting.
+          <div className="flex flex-1 flex-col overflow-y-auto px-6 py-10">
+            <div className="mx-auto w-full max-w-xl">
+              <h1 className="text-lg font-semibold text-ink">
+                Welcome back, {user?.name?.split(' ')[0]}
+              </h1>
+              <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
+                Pick a conversation from the left, or start one with a colleague who's online now.
+              </p>
+
+              {infoMessage && (
+                <p className="mt-4 rounded-lg bg-success-tint px-3 py-2 text-sm text-success-600">{infoMessage}</p>
+              )}
+
+              <h2 className="mb-3 mt-8 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-ink-muted)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-success-600" />
+                Online now
+              </h2>
+              <OnlineColleagues users={onlineUsers} busyUserId={startingChatWith} onSelect={handleStartChat} />
+            </div>
           </div>
         ) : (
           <>
@@ -436,7 +510,9 @@ export default function ChatsPage() {
 
             <div className="flex-1 overflow-y-auto px-4 py-4">
               {loadingMessages ? (
-                <p className="text-sm text-[var(--color-ink-muted)]">Loading messages…</p>
+                <div className="flex items-center gap-2 text-sm text-[var(--color-ink-muted)]">
+                  <Spinner /> Loading messages…
+                </div>
               ) : messages.length === 0 ? (
                 <p className="text-sm text-[var(--color-ink-muted)]">No messages yet. Say hello!</p>
               ) : (

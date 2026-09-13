@@ -16,6 +16,7 @@ import { StatusDot } from '../components/StatusDot';
 import { RelationshipAction } from '../components/RelationshipAction';
 import { TextInput, Select } from '../components/FormField';
 import { Card } from '../components/Card';
+import { Spinner } from '../components/Spinner';
 
 export default function DirectoryPage() {
   const navigate = useNavigate();
@@ -151,7 +152,9 @@ export default function DirectoryPage() {
         )}
 
         {loading ? (
-          <p className="text-sm text-[var(--color-ink-muted)]">Loading employees…</p>
+          <div className="flex items-center gap-2 text-sm text-[var(--color-ink-muted)]">
+            <Spinner /> Loading employees…
+          </div>
         ) : users.length === 0 ? (
           <p className="text-sm text-[var(--color-ink-muted)]">No employees found.</p>
         ) : (
