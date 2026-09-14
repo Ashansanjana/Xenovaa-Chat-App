@@ -6,18 +6,28 @@
 // does via VITE_API_URL / VITE_SOCKET_URL. Bundling a separate backend into
 // each desktop install would isolate users from each other and silently
 // break real-time chat.
-const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell, screen } = require('electron');
 const path = require('node:path');
 
 const isDev = !app.isPackaged;
 const DEV_SERVER_URL = process.env.ELECTRON_DEV_SERVER_URL || 'http://localhost:5173';
 
 function createWindow() {
+  // Default to a narrow, full-height window (25% of the screen's width) —
+  // like a docked chat panel. Fully resizable; the user can drag any edge
+  // to whatever size they want afterwards.
+  const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+  const width = Math.round(screenWidth * 0.25);
+  const height = screenHeight;
+
   const win = new BrowserWindow({
-    width: 1320,
-    height: 860,
-    minWidth: 980,
-    minHeight: 640,
+    width,
+    height,
+    x: 0,
+    y: 0,
+    minWidth: 360,
+    minHeight: 480,
+    resizable: true,
     autoHideMenuBar: true,
     backgroundColor: '#0b1220',
     webPreferences: {
