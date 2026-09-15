@@ -67,6 +67,8 @@ export default function ChatsPage() {
   const [infoMessage, setInfoMessage] = useState('');
 
   const typingTimeoutRef = useRef(null);
+  const isTypingRef = useRef(false);
+  const otherTypingTimeoutRef = useRef(null);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -125,7 +127,14 @@ export default function ChatsPage() {
     }
 
     function onTyping({ conversationId: cid, userId, isTyping }) {
-      if (cid === conversationId && userId !== user?.id) setIsOtherTyping(isTyping);
+      if (cid !== conversationId || userId === user?.id) return;
+      setIsOtherTyping(isTyping);
+      // Safety net: if a typing_stop event ever gets dropped (network blip),
+      // don't leave the indicator stuck on forever.
+      clearTimeout(otherTypingTimeoutRef.current);
+      if (isTyping) {
+        otherTypingTimeoutRef.current = setTimeout(() => setIsOtherTyping(false), 4000);
+      }
     }
 
     function onStatusUpdate({ conversationId: cid, userId, status, messageIds }) {
@@ -253,11 +262,19 @@ export default function ChatsPage() {
     setDraft(e.target.value);
     if (!socket || !conversationId) return;
 
-    socket.emit('typing_start', { conversationId });
+    // Only emit typing_start on the leading edge (not every keystroke), and
+    // give a longer grace period before typing_stop — a short pause while
+    // composing a message (thinking, re-reading) shouldn't make the "typing…"
+    // indicator flicker off and back on for the other person.
+    if (!isTypingRef.current) {
+      isTypingRef.current = true;
+      socket.emit('typing_start', { conversationId });
+    }
     clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(() => {
+      isTypingRef.current = false;
       socket.emit('typing_stop', { conversationId });
-    }, 1500);
+    }, 3000);
   }
 
   function handleSend(e) {
@@ -267,6 +284,7 @@ export default function ChatsPage() {
 
     setDraft('');
     clearTimeout(typingTimeoutRef.current);
+    isTypingRef.current = false;
     socket.emit('typing_stop', { conversationId });
 
     const replyToMessageId = replyingTo?.id || null;

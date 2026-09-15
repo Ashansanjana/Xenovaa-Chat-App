@@ -3,6 +3,7 @@ import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 import { getSavedStatus } from '../lib/presenceStatus';
 import { getSocketUrl } from '../lib/serverConfig';
+import { playMessageTone } from '../lib/soundSettings';
 
 const SocketContext = createContext(null);
 
@@ -27,6 +28,10 @@ export function SocketProvider({ children }) {
       auth: (cb) => cb({ token: localStorage.getItem('xenovaa_token'), status: getSavedStatus() }),
       autoConnect: true,
     });
+    instance.on('receive_message', (msg) => {
+      if (msg.sender_id !== user.id) playMessageTone();
+    });
+
     socketRef.current = instance;
     setSocket(instance);
 

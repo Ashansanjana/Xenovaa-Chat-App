@@ -8,6 +8,7 @@ import { Avatar } from './Avatar';
 import { UsersIcon, InboxIcon, ChatIcon, ShieldIcon, LogoutIcon, GearIcon } from './Icons';
 import { StatusSelector } from './StatusSelector';
 import { ServerSettingsModal } from './ServerSettingsModal';
+import { SoundToggle } from './SoundToggle';
 
 const NAV_LINKS = [
   { to: '/chats', label: 'Chats', Icon: ChatIcon },
@@ -86,6 +87,7 @@ export function AppLayout() {
             >
               <GearIcon className="h-[18px] w-[18px]" />
             </button>
+            <SoundToggle />
             <ThemeToggle />
             <NotificationBell />
           </header>
